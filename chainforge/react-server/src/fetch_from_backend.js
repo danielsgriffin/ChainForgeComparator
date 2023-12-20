@@ -2,7 +2,7 @@ import { queryLLM, executejs, executepy,
          fetchExampleFlow, fetchOpenAIEval, importCache, 
          exportCache, countQueries, grabResponses, 
          generatePrompts, initCustomProvider,
-         removeCustomProvider, evalWithLLM, loadCachedCustomProviders, fetchEnvironAPIKeys } from "./backend/backend";
+         removeCustomProvider, evalWithLLM, compareWithLLM, loadCachedCustomProviders, fetchEnvironAPIKeys } from "./backend/backend";
 
 const clone = (obj) => JSON.parse(JSON.stringify(obj));
 
@@ -22,6 +22,8 @@ async function _route_to_js_backend(route, params) {
       return executepy(params.id, params.code, params.responses, params.scope, params.process_type, params.script_paths);
     case 'evalWithLLM':
       return evalWithLLM(params.id, params.llm, params.root_prompt, params.responses, params.api_keys, params.progress_listener);
+    case 'compareWithLLM':
+      return compareWithLLM(params.id, params.llm, params.root_prompt, params.responses, params.api_keys, params.progress_listener);
     case 'importCache':
       return importCache(params.files);
     case 'exportCache':

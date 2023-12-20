@@ -26,6 +26,7 @@ import GlobalSettingsModal from './GlobalSettingsModal';
 import ExampleFlowsModal from './ExampleFlowsModal';
 import AreYouSureModal from './AreYouSureModal';
 import LLMEvaluatorNode from './LLMEvalNode';
+import LLMPairwiseComparisonNode from './LLMPairwiseComparisonNode';
 import { getDefaultModelFormData, getDefaultModelSettings } from './ModelSettingSchemas';
 import { v4 as uuid } from 'uuid';
 import LZString from 'lz-string';
@@ -84,6 +85,7 @@ const nodeTypes = {
   simpleval: SimpleEvalNode,
   evaluator: CodeEvaluatorNode,
   llmeval: LLMEvaluatorNode,
+  llmpcomp: LLMPairwiseComparisonNode,
   vis: VisNode,
   inspect: InspectNode,
   script: ScriptNode,
@@ -227,6 +229,10 @@ const App = () => {
   const addCommentNode = () => {
     const { x, y } = getViewportCenter();
     addNode({ id: 'comment-'+Date.now(), type: 'comment', data: {}, position: {x: x-200, y:y-100} });
+  };
+  const addLLMPairwiseComparisonNode = () => {
+    const { x, y } = getViewportCenter();
+    addNode({ id: 'llmpcomp-' + Date.now(), type: 'llmpcomp', data: {}, position: { x: x - 200, y: y - 100 } });
   };
   const addLLMEvalNode = () => {
     const { x, y } = getViewportCenter();
@@ -822,6 +828,9 @@ const App = () => {
             </MenuTooltip>): <></>}
             <MenuTooltip label="Evaluate responses with an LLM like GPT-4.">
               <Menu.Item onClick={addLLMEvalNode} icon={<IconRobot size="16px" />}> LLM Scorer </Menu.Item>
+            </MenuTooltip>
+            <MenuTooltip label="Compare responses pairwise, with an LLM like GPT-4.">
+              <Menu.Item onClick={addLLMPairwiseComparisonNode} icon={<IconRobot size="16px" />}> Pairwise Comparison </Menu.Item>
             </MenuTooltip>
             <Menu.Divider />
             <Menu.Label>Visualizers</Menu.Label>

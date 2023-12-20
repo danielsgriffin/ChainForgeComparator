@@ -569,7 +569,8 @@ def initCustomProvider():
 
         # This should have registered one or more new CustomModelProviders.
     except Exception as e:
-        return jsonify({'error': f'Error while executing custom provider code:\n{str(e)}'})
+        # return the full stack trace of the error
+        return jsonify({'error': f'Error while executing custom provider code:\n{str(e)}\n\n{"".join(traceback.format_tb(e.__traceback__))}'})
 
     # Check whether anything was updated, and what
     new_registries = ProviderRegistry.last_registered()
@@ -715,7 +716,7 @@ def run_server(host="", port=8000, cmd_args=None):
     global HOSTNAME, PORT
     HOSTNAME = host
     PORT = port    
-    app.run(host=host, port=port)
+    app.run(host=host, port=port, debug=True)
 
 if __name__ == '__main__':
     print("Run app.py instead.")

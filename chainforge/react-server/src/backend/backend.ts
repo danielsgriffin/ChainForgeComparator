@@ -45,7 +45,7 @@ function HIJACK_CONSOLE_LOGGING(id: string, base_window: Dict): void {
 
   if (ORIGINAL_CONSOLE_LOG_FUNCS.log) {
     let cl = ORIGINAL_CONSOLE_LOG_FUNCS.log;
-    base_window.console.log = function() {
+    base_window.console.log = function () {
       const a = Array.from(arguments).map(s => s.toString());
       HIJACKED_CONSOLE_LOGS[id].push(a.length === 1 ? a[0] : a);
       cl.apply(this, arguments);
@@ -54,7 +54,7 @@ function HIJACK_CONSOLE_LOGGING(id: string, base_window: Dict): void {
 
   if (ORIGINAL_CONSOLE_LOG_FUNCS.warn) {
     let cw = ORIGINAL_CONSOLE_LOG_FUNCS.warn;
-    base_window.console.warn = function() {
+    base_window.console.warn = function () {
       const a = Array.from(arguments).map(s => `warn: ${s.toString()}`);
       HIJACKED_CONSOLE_LOGS[id].push(a.length === 1 ? a[0] : a);
       cw.apply(this, arguments);
@@ -63,7 +63,7 @@ function HIJACK_CONSOLE_LOGGING(id: string, base_window: Dict): void {
 
   if (ORIGINAL_CONSOLE_LOG_FUNCS.error) {
     let ce = ORIGINAL_CONSOLE_LOG_FUNCS.error;
-    base_window.console.error = function() {
+    base_window.console.error = function () {
       const a = Array.from(arguments).map(s => `error: ${s.toString()}`);
       HIJACKED_CONSOLE_LOGS[id].push(a.length === 1 ? a[0] : a);
       ce.apply(this, arguments);
@@ -78,7 +78,7 @@ function REVERT_CONSOLE_LOGGING(id: string): any[] {
     console.warn = ORIGINAL_CONSOLE_LOG_FUNCS.warn;
   if (ORIGINAL_CONSOLE_LOG_FUNCS.log !== undefined)
     console.error = ORIGINAL_CONSOLE_LOG_FUNCS.error;
-  
+
   const logs = HIJACKED_CONSOLE_LOGS[id];
   delete HIJACKED_CONSOLE_LOGS[id];
   return logs;
@@ -126,7 +126,7 @@ function to_standard_format(r: LLMResponseObject | Dict): StandardizedLLMRespons
   return resp_obj;
 }
 
-function get_cache_keys_related_to_id(cache_id: string, include_basefile: boolean=true): string[] {
+function get_cache_keys_related_to_id(cache_id: string, include_basefile: boolean = true): string[] {
   // Load the base cache 'file' for cache_id
   const base_file = `${cache_id}.json`;
   const data = StorageCache.get(base_file);
@@ -146,7 +146,7 @@ async function setAPIKeys(api_keys: StringDict): Promise<void> {
  * 'Soft fails' if the file does not exist (returns empty object).
  */
 function load_from_cache(storageKey: string): Dict {
-    return StorageCache.get(storageKey) || {};
+  return StorageCache.get(storageKey) || {};
 }
 
 function load_cache_responses(storageKey: string): Array<Dict> {
@@ -163,8 +163,8 @@ function gen_unique_cache_filename(cache_id: string, prev_filenames: Array<strin
   prev_filenames.forEach(f => {
     const lhs = f.split('.')[0];
     const num = parseInt(lhs.split('_').pop() as string);
-    idx = Math.max(num+1, idx);
-  }); 
+    idx = Math.max(num + 1, idx);
+  });
   return `${cache_id}_${idx}.json`;
 }
 
@@ -215,7 +215,7 @@ function isLooselyEqual(value1: any, value2: any): boolean {
   if (!Array.isArray(value1) && !Array.isArray(value2)) {
     if (typeof value1 === 'object' && typeof value2 === 'object')
       return JSON.stringify(value1) === JSON.stringify(value2);
-    else 
+    else
       return value1 === value2;
   }
 
@@ -255,7 +255,7 @@ function matching_settings(cache_llm_spec: Dict | string, llm_spec: Dict | strin
 }
 
 function areSetsEqual(xs: Set<any>, ys: Set<any>): boolean {
-    return xs.size === ys.size && [...xs].every((x) => ys.has(x));
+  return xs.size === ys.size && [...xs].every((x) => ys.has(x));
 }
 
 function allStringsAreNumeric(strs: Array<string>) {
@@ -283,7 +283,7 @@ function check_typeof_vals(arr: Array<any>): MetricType {
       //Mix of types beyond basic ones
       return MetricType.Unknown;
   };
-  
+
   const typeof_dict_vals = (d: Dict) => {
     const dict_val_type = typeof_set(new Set(Object.values(d)));
     if (dict_val_type === MetricType.Numeric)
@@ -293,47 +293,47 @@ function check_typeof_vals(arr: Array<any>): MetricType {
     else
       return MetricType.KeyValue_Mixed;
   };
-      
+
   // Checks type of all values in 'arr' and returns the type
   const val_type = typeof_set(new Set(arr));
   if (val_type === MetricType.KeyValue) {
-      // This is a 'KeyValue' pair type. We need to find the more specific type of the values in the dict.
-      // First, we check that all dicts have the exact same keys
-      for (let i = 0; i < arr.length-1; i++) {
-        const d = arr[i];
-        const e = arr[i+1];
-        if (!areSetsEqual(d, e))
-          throw new Error('The keys and size of dicts for evaluation results must be consistent across evaluations.');
-      }
-      
-      // Then, we check the consistency of the type of dict values:
-      const first_dict_val_type = typeof_dict_vals(arr[0]);
-      arr.slice(1).forEach((d: Dict) => {
-        if (first_dict_val_type !== typeof_dict_vals(d))
-          throw new Error('Types of values in dicts for evaluation results must be consistent across responses.');
-      });
+    // This is a 'KeyValue' pair type. We need to find the more specific type of the values in the dict.
+    // First, we check that all dicts have the exact same keys
+    for (let i = 0; i < arr.length - 1; i++) {
+      const d = arr[i];
+      const e = arr[i + 1];
+      if (!areSetsEqual(d, e))
+        throw new Error('The keys and size of dicts for evaluation results must be consistent across evaluations.');
+    }
 
-      // If we're here, all checks passed, and we return the more specific KeyValue type:
-      return first_dict_val_type;
+    // Then, we check the consistency of the type of dict values:
+    const first_dict_val_type = typeof_dict_vals(arr[0]);
+    arr.slice(1).forEach((d: Dict) => {
+      if (first_dict_val_type !== typeof_dict_vals(d))
+        throw new Error('Types of values in dicts for evaluation results must be consistent across responses.');
+    });
+
+    // If we're here, all checks passed, and we return the more specific KeyValue type:
+    return first_dict_val_type;
   } else
     return val_type;
 }
 
-function run_over_responses(process_func: (resp: ResponseInfo) => any, 
-                            responses: StandardizedLLMResponse[],
-                            process_type: 'evaluator' | 'processor'): StandardizedLLMResponse[] {
+function run_over_responses(process_func: (resp: ResponseInfo) => any,
+  responses: StandardizedLLMResponse[],
+  process_type: 'evaluator' | 'processor'): StandardizedLLMResponse[] {
   return responses.map((_resp_obj: StandardizedLLMResponse) => {
     // Deep clone the response object
     let resp_obj = JSON.parse(JSON.stringify(_resp_obj));
 
     // Map the processor func over every individual response text in each response object
     const res = resp_obj.responses;
-    const processed = res.map((r: string) => 
-      process_func(new ResponseInfo(r, 
-                                    resp_obj.prompt, 
-                                    resp_obj.vars, 
-                                    resp_obj.metavars || {}, 
-                                    extract_llm_nickname(resp_obj.llm)))
+    const processed = res.map((r: string) =>
+      process_func(new ResponseInfo(r,
+        resp_obj.prompt,
+        resp_obj.vars,
+        resp_obj.metavars || {},
+        extract_llm_nickname(resp_obj.llm)))
     );
 
     // If type is just a processor
@@ -347,16 +347,16 @@ function run_over_responses(process_func: (resp: ResponseInfo) => any,
       const eval_res_type = check_typeof_vals(processed);
 
       if (eval_res_type === MetricType.Numeric) {
-          // Store items with summary of mean, median, etc
-          resp_obj.eval_res = {
-            items: processed,
-            dtype: getEnumName(MetricType, eval_res_type),
-          };
+        // Store items with summary of mean, median, etc
+        resp_obj.eval_res = {
+          items: processed,
+          dtype: getEnumName(MetricType, eval_res_type),
+        };
       } else if ([MetricType.Unknown, MetricType.Empty].includes(eval_res_type)) {
         throw new Error('Unsupported types found in evaluation results. Only supported types for metrics are: int, float, bool, str.');
       } else {
         // Categorical, KeyValue, etc, we just store the items:
-        resp_obj.eval_res = { 
+        resp_obj.eval_res = {
           items: processed,
           dtype: getEnumName(MetricType, eval_res_type),
         }
@@ -378,7 +378,7 @@ function run_over_responses(process_func: (resp: ResponseInfo) => any,
  * @param vars a dict of the template variables to fill the prompt template with, by name. (See countQueries docstring for more info).
  * @returns An array of strings representing the prompts that will be sent out. Note that this could include unfilled template vars.
  */
-export async function generatePrompts(root_prompt: string, vars: Dict): Promise<PromptTemplate[]> {  
+export async function generatePrompts(root_prompt: string, vars: Dict): Promise<PromptTemplate[]> {
   const gen_prompts = new PromptPermutationGenerator(root_prompt);
   const all_prompt_permutations = Array.from(gen_prompts.generate(vars));
   return all_prompt_permutations;
@@ -397,14 +397,14 @@ export async function generatePrompts(root_prompt: string, vars: Dict): Promise<
  * @returns If success, a dict with { counts: <dict of missing queries per LLM>, total_num_responses: <dict of total num responses per LLM> }
  *          If there was an error, returns a dict with a single key, 'error'. 
  */
-export async function countQueries(prompt: string, 
-                                   vars: Dict, 
-                                   llms: Array<Dict | string>, 
-                                   n: number, 
-                                   chat_histories?: ChatHistoryInfo[] | {[key: string]: ChatHistoryInfo[]}, 
-                                   id?: string,
-                                   cont_only_w_prior_llms?: boolean): Promise<Dict> {
-  if (chat_histories === undefined) chat_histories = [ undefined ];
+export async function countQueries(prompt: string,
+  vars: Dict,
+  llms: Array<Dict | string>,
+  n: number,
+  chat_histories?: ChatHistoryInfo[] | { [key: string]: ChatHistoryInfo[] },
+  id?: string,
+  cont_only_w_prior_llms?: boolean): Promise<Dict> {
+  if (chat_histories === undefined) chat_histories = [undefined];
 
   let gen_prompts: PromptPermutationGenerator;
   let all_prompt_permutations: Array<PromptTemplate> | Dict;
@@ -421,15 +421,15 @@ export async function countQueries(prompt: string,
     }
 
   } catch (err) {
-    return {error: err.message};
+    return { error: err.message };
   }
-  
+
   let cache_file_lookup: Dict = {};
   if (id !== undefined) {
     const cache_data = load_from_cache(`${id}.json`);
     cache_file_lookup = cache_data?.cache_files || {};
   }
-  
+
   let missing_queries = {};
   let num_responses_req = {};
   const add_to_missing_queries = (llm_key: string, prompt: string, num: number) => {
@@ -437,7 +437,7 @@ export async function countQueries(prompt: string,
       missing_queries[llm_key] = {};
     if (prompt in missing_queries[llm_key])
       missing_queries[llm_key][prompt] += num;
-    else 
+    else
       missing_queries[llm_key][prompt] = num;
   };
   const add_to_num_responses_req = (llm_key: string, num: number) => {
@@ -445,7 +445,7 @@ export async function countQueries(prompt: string,
       num_responses_req[llm_key] = 0;
     num_responses_req[llm_key] += num;
   }
-  
+
   llms.forEach(llm_spec => {
     const llm_key = extract_llm_key(llm_spec);
 
@@ -454,9 +454,9 @@ export async function countQueries(prompt: string,
 
     // Get the relevant chat histories for this LLM:
     const chat_hists = (!Array.isArray(chat_histories)
-                        ? chat_histories[extract_llm_nickname(llm_spec)] 
-                        : chat_histories) as ChatHistoryInfo[];
-    
+      ? chat_histories[extract_llm_nickname(llm_spec)]
+      : chat_histories) as ChatHistoryInfo[];
+
     // Find the response cache file for the specific LLM, if any
     let found_cache = false;
     for (const [cache_filename, cache_llm_spec] of Object.entries(cache_file_lookup)) {
@@ -479,13 +479,13 @@ export async function countQueries(prompt: string,
 
             // If there's chat history, we need to fill any special (#) vars from the carried chat_history vars and metavars:
             if (chat_hist !== undefined) {
-              prompt.fill_special_vars({...chat_hist?.fill_history, ...chat_hist?.metavars});
+              prompt.fill_special_vars({ ...chat_hist?.fill_history, ...chat_hist?.metavars });
               prompt_str = prompt.toString();
             }
 
             // Get the cache of responses with respect to this prompt, + normalize format so it's always an array (of size >= 0)
             const cache_bucket = cache_llm_responses[prompt_str];
-            let cached_resps: LLMResponseObject[] = Array.isArray(cache_bucket) ? cache_bucket : (cache_bucket === undefined ? [] : [ cache_bucket ]);
+            let cached_resps: LLMResponseObject[] = Array.isArray(cache_bucket) ? cache_bucket : (cache_bucket === undefined ? [] : [cache_bucket]);
 
             let found_resp = false;
             for (const cached_resp of cached_resps) {
@@ -504,11 +504,11 @@ export async function countQueries(prompt: string,
               add_to_missing_queries(llm_key, prompt_str, n);
           }
         });
-        
+
         break;
       }
     }
-    
+
     if (!found_cache) {
       _all_prompt_perms.forEach(perm => {
         add_to_num_responses_req(llm_key, n * chat_hists.length);
@@ -517,7 +517,7 @@ export async function countQueries(prompt: string,
     }
   });
 
-  return {'counts': missing_queries, 'total_num_responses': num_responses_req};
+  return { 'counts': missing_queries, 'total_num_responses': num_responses_req };
 }
 
 interface LLMPrompterResults {
@@ -529,7 +529,7 @@ interface LLMPrompterResults {
 export async function fetchEnvironAPIKeys(): Promise<Dict> {
   return fetch(`${FLASK_BASE_URL}app/fetchEnvironAPIKeys`, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     body: "",
   }).then(res => res.json());
 }
@@ -549,32 +549,32 @@ export async function fetchEnvironAPIKeys(): Promise<Dict> {
  * @param no_cache (optional) if true, deletes any cache'd responses for 'id' (always calls the LLMs fresh)
  * @returns a dictionary in format `{responses: StandardizedLLMResponse[], errors: string[]}`
  */
-export async function queryLLM(id: string, 
-                               llm: string | Array<string> | Array<Dict>,
-                               n: number, 
-                               prompt: string,
-                               vars: Dict,
-                               chat_histories?: ChatHistoryInfo[] | {[key: string]: ChatHistoryInfo[]},
-                               api_keys?: Dict,
-                               no_cache?: boolean,
-                               progress_listener?: (progress: {[key: symbol]: any}) => void,
-                               cont_only_w_prior_llms?: boolean): Promise<Dict> {
+export async function queryLLM(id: string,
+  llm: string | Array<string> | Array<Dict>,
+  n: number,
+  prompt: string,
+  vars: Dict,
+  chat_histories?: ChatHistoryInfo[] | { [key: string]: ChatHistoryInfo[] },
+  api_keys?: Dict,
+  no_cache?: boolean,
+  progress_listener?: (progress: { [key: symbol]: any }) => void,
+  cont_only_w_prior_llms?: boolean): Promise<Dict> {
   // Verify the integrity of the params
   if (typeof id !== 'string' || id.trim().length === 0)
-    return {'error': 'id is improper format (length 0 or not a string)'};
+    return { 'error': 'id is improper format (length 0 or not a string)' };
 
   if (Array.isArray(llm) && llm.length === 0)
-    return {'error': 'POST data llm is improper format (not string or list, or of length 0).'};
-  
+    return { 'error': 'POST data llm is improper format (not string or list, or of length 0).' };
+
   // Ensure llm param is an array
   if (typeof llm === 'string')
-    llm = [ llm ];
+    llm = [llm];
 
   llm = llm as (Array<string> | Array<Dict>);
 
   if (api_keys !== undefined)
     set_api_keys(api_keys);
-  
+
   // Get the storage keys of any cache files for specific models + settings
   const llms = llm;
   let cache: Dict = StorageCache.get(`${id}.json`) || {};  // returns {} if 'id' is not in the storage cache yet
@@ -602,7 +602,7 @@ export async function queryLLM(id: string,
         cache.cache_files[new_filename] = llm_spec;
         past_cache_filenames.push(new_filename);
       }
-    });    
+    });
   } else {
     // Create a new cache JSON object
     cache = { cache_files: {}, responses_last_run: [] };
@@ -636,7 +636,7 @@ export async function queryLLM(id: string,
   });
 
   // For each LLM, generate and cache responses:
-  let responses: {[key: string]: Array<LLMResponseObject>} = {};
+  let responses: { [key: string]: Array<LLMResponseObject> } = {};
   let all_errors = {};
   let num_generations = n !== undefined ? n : 1;
   async function query(llm_spec: string | Dict): Promise<LLMPrompterResults> {
@@ -653,9 +653,9 @@ export async function queryLLM(id: string,
       _vars = filterVarsByLLM(vars, llm_key);
     }
 
-    let chat_hists = ((chat_histories !== undefined && !Array.isArray(chat_histories)) 
-                      ? chat_histories[llm_nickname]
-                      : chat_histories) as ChatHistoryInfo[];
+    let chat_hists = ((chat_histories !== undefined && !Array.isArray(chat_histories))
+      ? chat_histories[llm_nickname]
+      : chat_histories) as ChatHistoryInfo[];
 
     // Create an object to query the LLM, passing a storage key for cache'ing responses
     const cache_filepath = llm_to_cache_filename[llm_key];
@@ -672,7 +672,7 @@ export async function queryLLM(id: string,
 
       // Yield responses for 'llm' for each prompt generated from the root template 'prompt' and template variables in 'properties':
       for await (const response of prompter.gen_responses(_vars, llm_str as LLM, num_generations, temperature, llm_params, chat_hists)) {
-        
+
         // Check for selective failure
         if (response instanceof LLMResponseError) {  // The request failed
           console.error(`error when fetching response from ${llm_str}: ${response.message}`);
@@ -699,11 +699,12 @@ export async function queryLLM(id: string,
     }
 
     return {
-      llm_key: llm_key, 
-      responses: resps, 
-      errors: errors };
+      llm_key: llm_key,
+      responses: resps,
+      errors: errors
+    };
   }
-      
+
   try {
     // Request responses simultaneously across LLMs
     let tasks: Array<Promise<LLMPrompterResults>> = llms.map(query);
@@ -727,10 +728,12 @@ export async function queryLLM(id: string,
   let vars_lookup = {}; // we create a lookup table for faster sort
   Object.entries(vars).forEach(([varname, vals]) => {
     vars_lookup[varname] = {};
-    vals.forEach((vobj: Dict | string, i: number) => {
-      const v = typeof vobj === "string" ? vobj : vobj?.text;
-      vars_lookup[varname][v] = i;
-    });
+    if (Array.isArray(vals)) {
+      vals.forEach((vobj: Dict | string, i: number) => {
+        const v = typeof vobj === "string" ? vobj : vobj?.text;
+        vars_lookup[varname][v] = i;
+      });
+    }
   });
   res.sort((a, b) => {
     if (!a.vars || !b.vars) return 0;
@@ -740,13 +743,13 @@ export async function queryLLM(id: string,
         const b_val = b.vars[varname];
         const a_idx = vals[a_val];
         const b_idx = vals[b_val];
-        if (a_idx > -1 && b_idx > -1 && a_idx !== b_idx) 
+        if (a_idx > -1 && b_idx > -1 && a_idx !== b_idx)
           return a_idx - b_idx;
       }
     }
     return 0;
   });
-  
+
   // Save the responses *of this run* to the storage cache, for further recall:
   let cache_filenames = past_cache_files;
   llms.forEach((llm_spec: string | Dict) => {
@@ -759,10 +762,10 @@ export async function queryLLM(id: string,
       cache_files: cache_filenames,
       responses_last_run: res,
     });
-  
+
   // Return all responses for all LLMs
   return {
-    responses: res, 
+    responses: res,
     errors: all_errors
   };
 }
@@ -781,11 +784,11 @@ export async function queryLLM(id: string,
  * @param scope the scope of responses to run on --a single response, or all across each batch. (If batch, evaluate() func has access to 'responses'.) NOTE: Currently this feature is disabled.
  * @param process_type the type of processing to perform. Evaluators only 'score'/annotate responses with an 'eval_res' key. Processors change responses (e.g. text).
  */
-export async function executejs(id: string, 
-                                code: string | ((rinfo: ResponseInfo) => any), 
-                                responses: StandardizedLLMResponse[], 
-                                scope: 'response' | 'batch',
-                                process_type: 'evaluator' | 'processor'): Promise<Dict> {
+export async function executejs(id: string,
+  code: string | ((rinfo: ResponseInfo) => any),
+  responses: StandardizedLLMResponse[],
+  scope: 'response' | 'batch',
+  process_type: 'evaluator' | 'processor'): Promise<Dict> {
   const req_func_name = (!process_type || process_type === 'evaluator') ? 'evaluate' : 'process';
 
   // Instantiate the evaluator function by eval'ing the passed code
@@ -819,7 +822,7 @@ export async function executejs(id: string,
         throw new Error(`${req_func_name}() function is undefined.`);
 
     } catch (err) {
-      return {'error': `Could not compile code. Error message:\n${err.message}`};
+      return { 'error': `Could not compile code. Error message:\n${err.message}` };
     }
   }
 
@@ -849,7 +852,7 @@ export async function executejs(id: string,
   // Store the evaluated responses in a new cache json:
   StorageCache.store(`${id}.json`, processed_resps);
 
-  return {responses: processed_resps, logs: all_logs};
+  return { responses: processed_resps, logs: all_logs };
 }
 
 /**
@@ -865,17 +868,17 @@ export async function executejs(id: string,
  * @param scope the scope of responses to run on --a single response, or all across each batch. (If batch, evaluate() func has access to 'responses'.) NOTE: Currently disabled.
  * @param process_type the type of processing to perform. Evaluators only 'score'/annotate responses with an 'eval_res' key. Processors change responses (e.g. text).
  */
-export async function executepy(id: string, 
-                                code: string | ((rinfo: ResponseInfo) => any), 
-                                responses: StandardizedLLMResponse[], 
-                                scope: 'response' | 'batch',
-                                process_type: 'evaluator' | 'processor',
-                                script_paths?: string[]): Promise<Dict> {
+export async function executepy(id: string,
+  code: string | ((rinfo: ResponseInfo) => any),
+  responses: StandardizedLLMResponse[],
+  scope: 'response' | 'batch',
+  process_type: 'evaluator' | 'processor',
+  script_paths?: string[]): Promise<Dict> {
   if (!APP_IS_RUNNING_LOCALLY()) {
     // We can't execute Python if we're not running the local Flask server. Error out:
     throw new Error("Cannot evaluate Python code: ChainForge does not appear to be running on localhost.")
   }
-  
+
   // All responses loaded; call our Python server to execute the evaluation code across all responses:
   const flask_response = await call_flask_backend('executepy', {
     id: id,
@@ -890,7 +893,7 @@ export async function executepy(id: string,
 
   if (!flask_response || flask_response.error !== undefined)
     throw new Error(flask_response?.error || 'Empty response received from Flask server');
-  
+
   // Grab the responses and logs from the Flask result object:
   const all_evald_responses = flask_response.responses;
   const all_logs = flask_response.logs;
@@ -898,7 +901,7 @@ export async function executepy(id: string,
   // Store the evaluated responses in a new cache json:
   StorageCache.store(`${id}.json`, all_evald_responses);
 
-  return {responses: all_evald_responses, logs: all_logs};
+  return { responses: all_evald_responses, logs: all_logs };
 }
 
 
@@ -911,15 +914,15 @@ export async function executepy(id: string,
  * @param response_ids the cache'd response to run on, which must be a unique ID or list of unique IDs of cache'd data
  * @param api_keys optional. any api keys to set before running the LLM
  */
-export async function evalWithLLM(id: string, 
-                                  llm: Dict, 
-                                  root_prompt: string,
-                                  response_ids: string | string[],
-                                  api_keys?: Dict,
-                                  progress_listener?: (progress: {[key: symbol]: any}) => void): Promise<Dict> {
+export async function evalWithLLM(id: string,
+  llm: Dict,
+  root_prompt: string,
+  response_ids: string | string[],
+  api_keys?: Dict,
+  progress_listener?: (progress: { [key: symbol]: any }) => void): Promise<Dict> {
   // Check format of response_ids
   if (!Array.isArray(response_ids))
-    response_ids = [ response_ids ];
+    response_ids = [response_ids];
   response_ids = response_ids as Array<string>;
 
   if (api_keys !== undefined)
@@ -932,26 +935,26 @@ export async function evalWithLLM(id: string,
     const cache_id = response_ids[i];
     const fname = `${cache_id}.json`;
     if (!StorageCache.has(fname))
-      return {error: `Did not find cache file for id ${cache_id}`};
+      return { error: `Did not find cache file for id ${cache_id}` };
 
     // Load the raw responses from the cache + clone them all:
     const resp_objs = load_cache_responses(fname).map(r => JSON.parse(JSON.stringify(r))) as StandardizedLLMResponse[];
     if (resp_objs.length === 0)
       continue;
-    
+
     // We need to keep track of the index of each response in the response object.
     // We can generate var dicts with metadata to store the indices:
     let inputs = resp_objs.map((obj, __i) => obj.responses.map(
-      (r: string, __j: number) => ({text: r, fill_history: obj.vars, metavars: { ...obj.metavars, __i, __j }})
+      (r: string, __j: number) => ({ text: r, fill_history: obj.vars, metavars: { ...obj.metavars, __i, __j } })
     )).flat();
 
     // Now run all inputs through the LLM grader!: 
-    const {responses, errors} = await queryLLM(`eval-${id}-${cache_id}`, [llm], 1, root_prompt, { input: inputs }, undefined, undefined, undefined, progress_listener);
+    const { responses, errors } = await queryLLM(`eval-${id}-${cache_id}`, [llm], 1, root_prompt, { input: inputs }, undefined, undefined, undefined, progress_listener);
 
     const err_vals: string[] = Array.from(Object.values(errors)) as string[];
     if (err_vals.length > 0)
       all_errors = all_errors.concat(err_vals);
-    
+
     // Now we need to apply each response as an eval_res (a score) back to each response object,
     // using the aforementioned mapping metadata:
     responses.forEach((r: StandardizedLLMResponse) => {
@@ -983,7 +986,7 @@ export async function evalWithLLM(id: string,
 
   // Check if the results are boolean-ish:
   if (all_eval_res.size === 2 && (all_eval_res.has('true') || all_eval_res.has('false') ||
-      all_eval_res.has('yes') || all_eval_res.has('no'))) {
+    all_eval_res.has('yes') || all_eval_res.has('no'))) {
     // Convert all eval results to boolean datatypes:
     all_evald_responses.forEach(resp_obj => {
       resp_obj.eval_res.items = resp_obj.eval_res.items.map((i: string) => {
@@ -992,7 +995,7 @@ export async function evalWithLLM(id: string,
       });
       resp_obj.eval_res.dtype = 'Categorical';
     });
-  // Check if the results are all numeric-ish:
+    // Check if the results are all numeric-ish:
   } else if (allStringsAreNumeric(Array.from(all_eval_res))) {
     // Convert all eval results to numeric datatypes:
     all_evald_responses.forEach(resp_obj => {
@@ -1004,8 +1007,220 @@ export async function evalWithLLM(id: string,
   // Store the evaluated responses in a new cache json:
   StorageCache.store(`${id}.json`, all_evald_responses);
 
-  return {responses: all_evald_responses, errors: all_errors};
+  return { responses: all_evald_responses, errors: all_errors };
 }
+
+
+/**
+ * Runs an LLM over paired responses as a comparator. 
+ * 
+ * @param id a unique ID to refer to this information. Used when cache'ing evaluation results. 
+ * @param llm the LLM to query (as an LLM specification dict)
+ * @param root_prompt the prompt template to use as the scoring function. Should include exactly two template variables, {inputA} and {inputB}, where input responses will be put.
+ * @param response_ids the cache'd response to run on, which must be a unique ID or list of unique IDs of cache'd data
+ * @param api_keys optional. any api keys to set before running the LLM
+ * @param progress_listener optional. a callback function to report progress
+ * @returns a Promise with a Dict containing responses and any errors
+ */
+export async function compareWithLLM(id: string,
+  llm: Dict,
+  root_prompt: string,
+  response_ids: string | string[],
+  api_keys?: Dict,
+  progress_listener?: (progress: { [key: symbol]: any }) => void): Promise<Dict> {
+  // Implementation similar to evalWithLLM but focused on pairwise comparisons.
+
+  // Check format of response_ids
+  if (!Array.isArray(response_ids))
+    response_ids = [response_ids];
+  response_ids = response_ids as Array<string>;
+
+  if (api_keys !== undefined)
+    set_api_keys(api_keys);
+
+  // Load all responses with the given ID:
+  let all_evald_responses: StandardizedLLMResponse[] = [];
+
+  console.log("Running compareWithLLM...")
+  console.log(` - loading ${response_ids.length} cache files...`)
+
+  let all_errors: string[] = [];
+
+  let processedPairs = [];
+
+  let inputs = [];
+  let resp_objs = [];
+  // create a new_resp_objs array to store the eval_res in a paired response object
+  const new_resp_objs: StandardizedLLMResponse[] = [];
+
+
+  for (let i = 0; i < response_ids.length; i++) {
+    const cache_id = response_ids[i];
+    console.log(`    - loading cache file ${cache_id}...`)
+    const fname = `${cache_id}.json`;
+
+    if (!StorageCache.has(fname))
+      return { error: `Did not find cache file for id ${cache_id}` };
+
+    // Load the raw responses from the cache + clone them all:
+    resp_objs = load_cache_responses(fname).map(r => JSON.parse(JSON.stringify(r))) as StandardizedLLMResponse[];
+    if (resp_objs.length === 0)
+      continue;
+
+    console.log(` here is the first response object: ${JSON.stringify(resp_objs[0])}`)
+    // We need to keep track of the index of each response in the response object.
+    // We can generate var dicts with metadata to store the indices:
+    inputs = resp_objs.map((obj, __i) => obj.responses.map(
+      (r: string, __j: number) => ({ text: r, fill_history: obj.vars, metavars: { ...obj.metavars, __i, __j, LLM_0: obj.llm }, cache_id: cache_id, prompt: obj.prompt })
+    )).flat();
+    console.log(` - found ${inputs.length} inputs...`)
+    }
+
+  
+
+  // Initialize responses and errors arrays to store results from LLM comparator
+  let responses: StandardizedLLMResponse[] = [];
+  let errors: Dict = {};
+  
+
+  // Generate unique pairs of inputs
+  function generateUniquePairs(inputs) {
+    // IMPORTANT: order is distinct, so we need to generate pairs in both directions
+    console.log(`   - in generateUniquePairs...`)
+
+    console.log(` the first input is ${JSON.stringify(inputs[0])}`)
+
+    const pairs = [];
+    for (let i = 0; i < inputs.length; i++) {
+      for (let j = 0; j < inputs.length; j++) {
+        // Check if the inputs are from different models (metavars["LLM_0"]) and have the same prompt variables (fill_history)
+        if (inputs[i].metavars["LLM_0"] !== inputs[j].metavars["LLM_0"] &&
+          JSON.stringify(inputs[i].fill_history) === JSON.stringify(inputs[j].fill_history)) {
+          pairs.push([inputs[i], inputs[j]]);
+        }
+      }
+    }
+    console.log(`   - found ${pairs.length} pairs...`)
+    return pairs;
+  }
+
+  function addPairwiseMetavars(response: StandardizedLLMResponse, inputA, inputB) {
+    // Add the pairing
+    response.metavars.LLM_pair = `${inputA.metavars["LLM_0"]} vs. ${inputB.metavars["LLM_0"]}`;
+    // Add the systems individually
+    response.metavars.system_A = `${inputA.metavars["LLM_0"]}`;
+    response.metavars.system_B = `${inputB.metavars["LLM_0"]}`;
+    // Add the text of the systems (the comparison responses)
+    response.metavars.system_A_text = `${inputA.text}`;
+    response.metavars.system_B_text = `${inputB.text}`;
+
+    // Add the i and j values from the winning response
+    if (response.responses[0] === 'A') {
+      response.metavars.__i = inputA.metavars.__i;
+      response.metavars.__j = inputA.metavars.__j;
+    } else {
+      response.metavars.__i = inputB.metavars.__i;
+      response.metavars.__j = inputB.metavars.__j;
+    }
+    return response;
+  }
+
+  // Iterate through the inputs to query the LLM
+  console.log(` - generating unique pairs...`)
+  for (const pair of generateUniquePairs(inputs)) {
+    
+    // set the pairing
+    let [inputA, inputB] = pair;
+
+    // set pairKey and see if the pair has already been processed
+    let pairKey = JSON.stringify([inputA.metavars["LLM_0"], inputA.fill_history, inputB.metavars["LLM_0"], inputB.fill_history]);
+    console.log(`   - checking if pair ${pairKey} has already been processed...`)
+    if (processedPairs.includes(pairKey)) {
+      continue;
+    }
+    // set the original_prompt
+    let originalPrompt = inputA.prompt;
+    console.log(` - querying LLM for pair ${pair}...`)
+    // Run the pair through the LLM comparator!
+    let { responses: pairResponses, errors: pairErrors } = await queryLLM(`comp-${id}-${inputA.cache_id}`, [llm], 1, root_prompt, { original_prompt: originalPrompt, inputA: inputA.text, inputB: inputB.text }, undefined, undefined, undefined, progress_listener); 
+    
+    // Add the addPairwiseMetavars to the responses
+    pairResponses.forEach((r: StandardizedLLMResponse) => {
+      r = addPairwiseMetavars(r, inputA, inputB)
+
+    });
+
+    // Add the pairKey to the processedPairs array
+    processedPairs.push(pairKey);
+
+    // Add the responses and errors from the pair to the overall responses and errors
+    responses = responses.concat(pairResponses);
+    errors = { ...errors, ...pairErrors };
+  }
+
+    const err_vals: string[] = Array.from(Object.values(errors)) as string[];
+    if (err_vals.length > 0)
+      all_errors = all_errors.concat(err_vals);
+
+  
+  // Let's rebuild the resp_obj with the pairing data
+  function rebuildRespObj(resp_obj: any, r: StandardizedLLMResponse) {
+    // Update .metavars (to match that established above)
+    resp_obj.metavars = r.metavars;
+    // Create .llm as System A.
+    console.log("r.metavars.system_A", r.metavars.system_A)
+    resp_obj.llm = r.metavars.system_A;
+    // Create .pairing, the comparison sorted alphabetically.
+    let [systemY, systemZ] = r.metavars.LLM_pair.split(" vs. ").sort();
+    let LLM_pair = `${systemY} vs. ${systemZ}`;
+    resp_obj.pairing_abc = LLM_pair;
+    // Create a text-friendly version of the full prompt
+    resp_obj.responses = [`# System A: ${r.metavars.system_A}\n${r.vars.inputA}\n# System B: ${r.metavars.system_B}\n${r.vars.inputB}`];
+
+    return resp_obj;
+  }
+
+  // Now we need to apply each response as an eval_res (a score) to a paired response object,
+  // using the aforementioned mapping metadata:
+
+  responses.forEach((r: StandardizedLLMResponse) => {
+    // Clone the resp_obj to avoid mutating the original
+    let clonedRespObj = JSON.parse(JSON.stringify(resp_objs[r.metavars.__i]));
+
+    if (clonedRespObj.eval_res !== undefined) {
+      clonedRespObj.eval_res.items[r.metavars.__j] = r.responses[0];
+    } else {
+      clonedRespObj.eval_res = { items: [], dtype: 'Categorical' };
+      clonedRespObj.eval_res.items[r.metavars.__j] = r.responses[0];
+    }
+
+    clonedRespObj = rebuildRespObj(clonedRespObj, r);
+    new_resp_objs.push(clonedRespObj);
+  });
+
+  all_evald_responses = all_evald_responses.concat(new_resp_objs);
+
+  // Do additional processing to collect unique evaluation results in a set and handle errors
+  let all_eval_res: Set<string> = new Set();
+  try {
+    for (const resp_obj of all_evald_responses) {
+      if (!resp_obj.eval_res) continue;
+      for (const score of resp_obj.eval_res.items) {
+        if (score !== undefined)
+          all_eval_res.add(score.trim().toUpperCase());
+      }
+    }
+  } catch (error) {
+    console.error('Error processing evaluations:', error);
+    throw error;
+  }
+
+  // Store the evaluated responses in a new cache json:
+  StorageCache.store(`${id}.json`, all_evald_responses);
+
+  return { responses: all_evald_responses, errors: all_errors };
+}
+
 
 
 /**
@@ -1016,22 +1231,24 @@ export async function evalWithLLM(id: string,
  */
 export async function grabResponses(responses: Array<string>): Promise<Dict> {
   // Grab all responses with the given ID:
+  console.log(`Grabbing responses with id(s) ${responses}...`);
   let grabbed_resps = [];
   for (let i = 0; i < responses.length; i++) {
     const cache_id = responses[i];
     const storageKey = `${cache_id}.json`;
     if (!StorageCache.has(storageKey))
-      return {error: `Did not find cache data for id ${cache_id}`};
-    
+      return { error: `Did not find cache data for id ${cache_id}` };
+
     let res: Dict[] = load_cache_responses(storageKey);
     if (typeof res === 'object' && !Array.isArray(res)) {
-        // Convert to standard response format
-        Object.entries(res).map(([prompt, res_obj]: [string, Dict]) => to_standard_format({prompt: prompt, ...res_obj}));
+      // Convert to standard response format
+      Object.entries(res).map(([prompt, res_obj]: [string, Dict]) => to_standard_format({ prompt: prompt, ...res_obj }));
     }
     grabbed_resps = grabbed_resps.concat(res);
   }
+  console.log(`Grabbed ${grabbed_resps.length} responses.`);
 
-  return {responses: grabbed_resps};
+  return { responses: grabbed_resps };
 }
 
 /**
@@ -1047,14 +1264,14 @@ export async function exportCache(ids: string[]) {
     const cache_id = ids[i];
     const cache_keys = get_cache_keys_related_to_id(cache_id);
     if (cache_keys.length === 0) {
-        console.warn(`Warning: Could not find cache data for id '${cache_id}'. Skipping...`);
-        continue;
+      console.warn(`Warning: Could not find cache data for id '${cache_id}'. Skipping...`);
+      continue;
     }
     cache_keys.forEach((key: string) => {
       export_data[key] = load_from_cache(key);
     });
   }
-  return {files: export_data};
+  return { files: export_data };
 }
 
 
@@ -1080,7 +1297,7 @@ export async function importCache(files: { [key: string]: Dict | Array<any> }): 
     console.error('Error importing from cache:', err.message);
     return { result: false };
   }
-  
+
   console.log("Imported cache data and stored to cache.");
   return { result: true };
 }
@@ -1093,15 +1310,15 @@ export async function importCache(files: { [key: string]: Dict | Array<any> }): 
  * @param _name The filename (without .cforge extension)
  * @returns a Promise with the JSON of the loaded data
  */
-export async function fetchExampleFlow(evalname: string): Promise<Dict> {    
+export async function fetchExampleFlow(evalname: string): Promise<Dict> {
   if (APP_IS_RUNNING_LOCALLY()) {
     // Attempt to fetch the example flow from the local filesystem
     // by querying the Flask server: 
     return fetch(`${FLASK_BASE_URL}app/fetchExampleFlow`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ name: evalname })
-    }).then(function(res) {
+    }).then(function (res) {
       return res.json();
     });
   }
@@ -1109,8 +1326,8 @@ export async function fetchExampleFlow(evalname: string): Promise<Dict> {
   // App is not running locally, but hosted on a site.
   // If this is the case, attempt to fetch the example flow from a relative site path:
   return fetch(`examples/${evalname}.cforge`)
-              .then(response => response.json())
-              .then(res => ({data: res}));
+    .then(response => response.json())
+    .then(res => ({ data: res }));
 }
 
 
@@ -1129,9 +1346,9 @@ export async function fetchOpenAIEval(evalname: string): Promise<Dict> {
     // by querying the Flask server: 
     return fetch(`${FLASK_BASE_URL}app/fetchOpenAIEval`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ name: evalname })
-    }).then(function(res) {
+    }).then(function (res) {
       return res.json();
     });
   }
@@ -1140,8 +1357,8 @@ export async function fetchOpenAIEval(evalname: string): Promise<Dict> {
   // If this is the case, attempt to fetch the example flow from relative path on the site:
   //  > ALT: `https://raw.githubusercontent.com/ianarawjo/ChainForge/main/chainforge/oaievals/${_name}.cforge`
   return fetch(`oaievals/${evalname}.cforge`)
-              .then(response => response.json())
-              .then(res => ({data: res}));
+    .then(response => response.json())
+    .then(res => ({ data: res }));
 }
 
 /**
@@ -1156,9 +1373,9 @@ export async function initCustomProvider(code: string): Promise<Dict> {
   // by querying the Flask server: 
   return fetch(`${FLASK_BASE_URL}app/initCustomProvider`, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     body: JSON.stringify({ code })
-  }).then(function(res) {
+  }).then(function (res) {
     return res.json();
   });
 }
@@ -1175,9 +1392,9 @@ export async function removeCustomProvider(name: string): Promise<Dict> {
   // by querying the Flask server: 
   return fetch(`${FLASK_BASE_URL}app/removeCustomProvider`, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     body: JSON.stringify({ name })
-  }).then(function(res) {
+  }).then(function (res) {
     return res.json();
   });
 }
@@ -1191,9 +1408,11 @@ export async function removeCustomProvider(name: string): Promise<Dict> {
 export async function loadCachedCustomProviders(): Promise<Dict> {
   return fetch(`${FLASK_BASE_URL}app/loadCachedCustomProviders`, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     body: "{}"
-  }).then(function(res) {
+  }).then(function (res) {
     return res.json();
   });
 }
+
+

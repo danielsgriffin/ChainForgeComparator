@@ -1,3 +1,45 @@
+
+# Comparator Fork
+
+_Read below for the original README contents._
+
+Big thanks to [Ian Arawjo](https://github.com/ianarawjo/) and team!
+
+## Goal
+
+Support comparisons between different generative web search systems (and chains).
+
+## Changes
+
+- flask_app.py
+  - added temp debugging.
+- App.js
+  - added `LLMPairwiseComparisonNode`
+- backend/backend.ts
+  - some ESLint changes(?)
+  - added function: `compareWithLLM` (modeled on `evalWithLLM`)
+- fetch_from_backend.js
+  - added `compareWithLLM` case
+- text-fields-node.css
+  - added `comparison-inspector-prompt-text` styling
+
+Added: (modeling on available examples)
+  - LLMPairwiseComparisonNode.js
+  - PairwiseComparisonInspector.js
+  - PairwiseComparisonInspectorDrawer.js
+  - PairwiseComparisonInspectorModal.js
+
+TODO:
+- Look into adding human masked comparison?
+- Look into adding hint-aggregation-nodes?
+- Look into adding detour nodes that allow more chaining for some responses?
+
+## Develop
+
+- in /ChainForgeComparator: `p -m chainforge.app serve`
+- in /ChainForgeComparator/react-server: `npm start`
+  - use `npm install react-scripts` to prepare the first time
+
 # ⛓️🛠️ ChainForge
 **An open-source visual programming environment for battle-testing prompts to LLMs.**
 

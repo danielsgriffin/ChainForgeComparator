@@ -79,7 +79,7 @@
     "react-dom": "^18.2.0",
     "react-edit-text": "^5.1.0",
     "react-plotly.js": "^2.6.0",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "reactflow": "^11.0",
     "request": "^2.88.2",
     "socket.io-client": "^4.6.1",
